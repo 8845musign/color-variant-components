@@ -118,34 +118,53 @@
       font-size: 13px;
       line-height: 1.5;
     }
+    
+    .status {
+      position: fixed;
+      bottom: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      background: #4caf50;
+      color: white;
+      border-radius: 4px;
+      font-size: 11px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .status.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
   <div class="section">
     <h2>Color Variant Components</h2>
     <div class="info">
-      Select objects in your design and scan them to extract color variants. Then create a component set with all color variations.
+      Create color swatch components from your local color variables. Each variable will become a variant in a component set.
     </div>
     <button id="scan-button" class="button button-primary">
-      Scan Selected Objects for Colors
+      Load Color Variables
     </button>
   </div>
   
   <div id="results-section" class="section" style="display: none;">
-    <h2>Found Colors</h2>
+    <h2>Color Variables</h2>
     <div id="color-list" class="color-list">
-      <div class="empty-state">No colors found</div>
+      <div class="empty-state">No color variables found</div>
     </div>
     <button id="create-button" class="button button-primary">
-      Create Component Set
+      Create Color Swatches
     </button>
     <button id="rescan-button" class="button button-secondary">
-      Scan Again
+      Refresh Variables
     </button>
   </div>
   
   <button id="cancel-button" class="button button-secondary">
     Cancel
   </button>
+  
+  <div id="status" class="status">UI Loaded</div>
 </body>
 </html>

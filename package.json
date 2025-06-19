@@ -3,18 +3,31 @@
   "version": "1.0.0",
   "description": "Figma plugin to read color variants and create components with color variants as fills",
   "main": "code.js",
+  "figma-plugin": {
+    "editorType": [
+      "figma"
+    ],
+    "id": "color-variant-components",
+    "name": "Color Variant Components",
+    "main": "src/main.ts",
+    "ui": "src/ui.tsx"
+  },
   "scripts": {
-    "build": "webpack --mode=production",
-    "watch": "webpack --mode=development --watch",
+    "build": "build-figma-plugin --typecheck --minify",
+    "watch": "build-figma-plugin --typecheck --watch",
     "type-check": "tsc --noEmit"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@create-figma-plugin/build": "^4.0.1",
+    "@create-figma-plugin/tsconfig": "^4.0.1",
+    "@create-figma-plugin/utilities": "^4.0.1",
     "@figma/plugin-typings": "^1.96.0",
     "@types/node": "^20.11.0",
     "css-loader": "^6.10.0",
     "html-webpack-plugin": "^5.6.0",
+    "preact": "^10.26.9",
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",

@@ -1,14 +1,1 @@
-{
-  "name": "Color Variant Components",
-  "id": "color-variant-components",
-  "api": "1.0.0",
-  "main": "code.js",
-  "ui": "ui.html",
-  "editorType": [
-    "figma"
-  ],
-  "permissions": [],
-  "networkAccess": {
-    "allowedDomains": []
-  }
-}
+{"api":"1.0.0","editorType":["figma"],"id":"color-variant-components","name":"Color Variant Components","main":"build/main.js","ui":"build/ui.js"}

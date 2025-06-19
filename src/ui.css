@@ -1,30 +1,3 @@
-/* Figma plugin UI styles using Figma's design system variables */
-
-:root {
-  --color-bg: var(--figma-color-bg);
-  --color-bg-hover: var(--figma-color-bg-hover);
-  --color-bg-pressed: var(--figma-color-bg-pressed);
-  --color-bg-secondary: var(--figma-color-bg-secondary);
-  --color-bg-tertiary: var(--figma-color-bg-tertiary);
-  --color-bg-brand: var(--figma-color-bg-brand);
-  --color-bg-brand-hover: var(--figma-color-bg-brand-hover);
-  --color-bg-brand-pressed: var(--figma-color-bg-brand-pressed);
-  --color-bg-danger: var(--figma-color-bg-danger);
-  --color-bg-success: var(--figma-color-bg-success);
-  --color-border: var(--figma-color-border);
-  --color-border-strong: var(--figma-color-border-strong);
-  --color-text: var(--figma-color-text);
-  --color-text-secondary: var(--figma-color-text-secondary);
-  --color-text-brand: var(--figma-color-text-brand);
-  --color-text-danger: var(--figma-color-text-danger);
-  --color-text-onbrand: var(--figma-color-text-onbrand);
-  --color-text-ondanger: var(--figma-color-text-ondanger);
-  --color-text-onsuccess: var(--figma-color-text-onsuccess);
-  --color-icon: var(--figma-color-icon);
-  --color-icon-secondary: var(--figma-color-icon-secondary);
-  --color-icon-brand: var(--figma-color-icon-brand);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -32,163 +5,126 @@
 body {
   margin: 0;
   padding: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  color: #333;
 }
 
-h1 {
-  font-size: 20px;
+h2 {
+  font-size: 16px;
   font-weight: 600;
-  margin: 0 0 16px;
-  color: var(--color-text);
+  margin: 0 0 16px 0;
 }
 
-.description {
-  color: var(--color-text-secondary);
-  margin-bottom: 24px;
-  line-height: 1.5;
-}
-
-.section {
-  margin-bottom: 24px;
-}
-
-.section-title {
-  font-weight: 500;
-  margin-bottom: 12px;
-  color: var(--color-text);
-}
-
-.color-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.color-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  background: var(--color-bg-secondary);
-  border-radius: 6px;
-}
-
-.color-preview {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  border: 1px solid var(--color-border);
-  flex-shrink: 0;
-}
-
-.color-input-group {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-}
-
-input[type="text"] {
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-size: 14px;
-  flex: 1;
-}
-
-input[type="text"]:focus {
-  outline: none;
-  border-color: var(--color-border-strong);
-}
-
-input[type="color"] {
-  width: 40px;
-  height: 34px;
-  padding: 4px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-bg);
-  cursor: pointer;
-}
-
-.remove-button {
-  padding: 6px 8px;
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 18px;
-  line-height: 1;
-}
-
-.remove-button:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-danger);
-}
-
-button {
+.button {
+  width: 100%;
   padding: 10px 16px;
   border: none;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  margin-bottom: 8px;
 }
 
 .button-primary {
-  background: var(--color-bg-brand);
-  color: var(--color-text-onbrand);
-  width: 100%;
+  background: #18a0fb;
+  color: white;
 }
 
-.button-primary:hover:not(:disabled) {
-  background: var(--color-bg-brand-hover);
+.button-primary:hover {
+  background: #0d8ee9;
 }
 
-.button-primary:active:not(:disabled) {
-  background: var(--color-bg-brand-pressed);
+.button-secondary {
+  background: #f0f0f0;
+  color: #333;
 }
 
-.button-primary:disabled {
+.button-secondary:hover {
+  background: #e0e0e0;
+}
+
+.button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.button-secondary {
-  background: var(--color-bg-secondary);
-  color: var(--color-text);
-  margin-bottom: 12px;
-}
-
-.button-secondary:hover {
-  background: var(--color-bg-tertiary);
-}
-
-.warning {
-  padding: 12px;
-  background: var(--color-bg-secondary);
+.color-list {
+  margin: 16px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
-  color: var(--color-text-secondary);
+}
+
+.color-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.color-item:last-child {
+  border-bottom: none;
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  margin-right: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.color-info {
+  flex: 1;
+}
+
+.color-name {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.color-hex {
+  color: #666;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: #999;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.info {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
   font-size: 13px;
   line-height: 1.5;
-  margin-bottom: 16px;
 }
 
-.presets {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
+.status {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  background: #4caf50;
+  color: white;
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
-.preset-button {
-  padding: 8px 12px;
-  font-size: 13px;
+.status.show {
+  opacity: 1;
 }
