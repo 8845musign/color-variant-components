@@ -191,8 +191,7 @@ async function createColorVariantComponents(colorVariables: Array<{id: string, n
     console.log(`Creating component for ${variable.name}:`, variable.color, variable.hex);
     
     const component = figma.createComponent();
-    const rect = figma.createRectangle();
-    rect.resize(100, 100);
+    component.resize(64, 64);
     
     // Check if RGB values need normalization (0-255 to 0-1)
     let r = variable.color.r;
@@ -209,16 +208,14 @@ async function createColorVariantComponents(colorVariables: Array<{id: string, n
     
     console.log(`RGB values: r=${r}, g=${g}, b=${b}`);
     
-    // Apply the fill
+    // Apply the fill directly to the component
     const fill: SolidPaint = {
       type: 'SOLID',
       color: { r, g, b },
       opacity: 1
     };
     
-    rect.fills = [fill];
-    
-    component.appendChild(rect);
+    component.fills = [fill];
     component.name = `color/${variable.name}`;
     
     // Position components in a grid
