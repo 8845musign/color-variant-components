@@ -63,6 +63,34 @@ async function getVariableCollections(): Promise<Array<{id: string, name: string
   return collections;
 }
 
+// Helper function to resolve variable aliases recursively
+async function resolveColorValue(value: any, depth = 0): Promise<RGB | null> {
+  if (depth > 10) {
+    console.log('  - Max alias depth reached, stopping recursion');
+    return null;
+  }
+  
+  // Direct RGB value
+  if (value && typeof value === 'object' && 'r' in value && 'g' in value && 'b' in value) {
+    return value as RGB;
+  }
+  
+  // Variable alias
+  if (value && typeof value === 'object' && 'type' in value && value.type === 'VARIABLE_ALIAS') {
+    const aliasedVariable = await figma.variables.getVariableByIdAsync(value.id);
+    if (aliasedVariable && aliasedVariable.resolvedType === 'COLOR') {
+      const aliasedCollection = await figma.variables.getVariableCollectionByIdAsync(aliasedVariable.variableCollectionId);
+      if (aliasedCollection) {
+        // Try to resolve from the first mode of the aliased variable
+        const aliasValue = aliasedVariable.valuesByMode[aliasedCollection.modes[0].modeId];
+        return resolveColorValue(aliasValue, depth + 1);
+      }
+    }
+  }
+  
+  return null;
+}
+
 async function getLocalColorVariables(selectedCollectionIds?: string[]): Promise<Array<{id: string, name: string, color: RGB, hex: string}>> {
   const colorVariables: Array<{id: string, name: string, color: RGB, hex: string}> = [];
   
@@ -70,7 +98,8 @@ async function getLocalColorVariables(selectedCollectionIds?: string[]): Promise
     // Get all local variables
     const localVariables = await figma.variables.getLocalVariablesAsync();
     
-    console.log('Found variables:', localVariables.length);
+    console.log('Total variables found:', localVariables.length);
+    console.log('Selected collection IDs:', selectedCollectionIds);
     
     const rgbToHex = (rgb: RGB): string => {
       const toHex = (val: number) => {
@@ -81,9 +110,10 @@ async function getLocalColorVariables(selectedCollectionIds?: string[]): Promise
     };
     
     // Filter for color variables
+    let filteredCount = 0;
+    let colorCount = 0;
+    
     for (const variable of localVariables) {
-      console.log('Variable:', variable.name, 'Type:', variable.resolvedType);
-      
       // Filter by selected collections if provided
       if (selectedCollectionIds && selectedCollectionIds.length > 0) {
         if (!selectedCollectionIds.includes(variable.variableCollectionId)) {
@@ -91,27 +121,50 @@ async function getLocalColorVariables(selectedCollectionIds?: string[]): Promise
         }
       }
       
+      filteredCount++;
+      
       if (variable.resolvedType === 'COLOR') {
+        colorCount++;
+        console.log(`Processing color variable: ${variable.name} (${variable.id})`);
+        
         // Get the collection to find the modes
         const collection = await figma.variables.getVariableCollectionByIdAsync(variable.variableCollectionId);
-        if (!collection) continue;
+        if (!collection) {
+          console.log('  - Collection not found, skipping');
+          continue;
+        }
         
-        // Get the default mode
-        const defaultMode = collection.modes[0];
-        const value = variable.valuesByMode[defaultMode.modeId];
+        console.log(`  - Collection: ${collection.name}, Modes: ${collection.modes.length}`);
         
-        console.log('Color value:', value);
+        // Try all modes to find a valid color value
+        let colorValue = null;
+        for (const mode of collection.modes) {
+          const value = variable.valuesByMode[mode.modeId];
+          console.log(`  - Mode ${mode.name}: value type = ${typeof value}`, value);
+          
+          const resolvedColor = await resolveColorValue(value);
+          if (resolvedColor) {
+            colorValue = resolvedColor;
+            console.log('  - Resolved to RGB color');
+            break;
+          }
+        }
         
-        if (value && typeof value === 'object' && 'r' in value && 'g' in value && 'b' in value) {
+        if (colorValue) {
           colorVariables.push({
             id: variable.id,
             name: variable.name,
-            color: value as RGB,
-            hex: rgbToHex(value as RGB)
+            color: colorValue,
+            hex: rgbToHex(colorValue)
           });
+          console.log(`  - Added to results: ${variable.name} (${rgbToHex(colorValue)})`);
+        } else {
+          console.log('  - No valid RGB color value found in any mode');
         }
       }
     }
+    
+    console.log(`Summary: ${filteredCount} variables in selected collections, ${colorCount} are colors, ${colorVariables.length} have valid RGB values`);
     
     console.log('Found color variables:', colorVariables.length);
     
@@ -166,7 +219,7 @@ async function createColorVariantComponents(colorVariables: Array<{id: string, n
     rect.fills = [fill];
     
     component.appendChild(rect);
-    component.name = variable.name;
+    component.name = `color/${variable.name}`;
     
     // Position components in a grid
     const cols = 5;
