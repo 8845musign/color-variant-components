@@ -12,7 +12,16 @@ interface ColorVariable {
   hex: string;
 }
 
+interface VariableCollection {
+  id: string;
+  name: string;
+  colorCount: number;
+}
+
 function Plugin() {
+  const [collections, setCollections] = useState<VariableCollection[]>([]);
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+  const [showCollectionSelection, setShowCollectionSelection] = useState(false);
   const [colorVariables, setColorVariables] = useState<ColorVariable[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [showStatus, setShowStatus] = useState(true);
@@ -23,21 +32,44 @@ function Plugin() {
       setShowStatus(false);
     }, 2000);
 
+    // Listen for collections from main
+    on("variable-collections", (data: VariableCollection[]) => {
+      setCollections(data);
+      setShowCollectionSelection(true);
+    });
+
     // Listen for color variables from main
     on("color-variables", (data: ColorVariable[]) => {
       setColorVariables(data);
       setShowResults(true);
+      setShowCollectionSelection(false);
     });
   }, []);
 
   const handleScanClick = () => {
     console.log("Load button clicked");
-    emit("get-color-variables");
+    emit("get-collections");
+  };
+
+  const handleCollectionSelect = (collectionId: string) => {
+    if (selectedCollections.includes(collectionId)) {
+      setSelectedCollections(selectedCollections.filter(id => id !== collectionId));
+    } else {
+      setSelectedCollections([...selectedCollections, collectionId]);
+    }
+  };
+
+  const handleLoadVariables = () => {
+    if (selectedCollections.length > 0) {
+      emit("get-color-variables", selectedCollections);
+    }
   };
 
   const handleRescanClick = () => {
     setShowResults(false);
-    emit("get-color-variables");
+    setShowCollectionSelection(false);
+    setSelectedCollections([]);
+    emit("get-collections");
   };
 
   const handleCreateClick = () => {
@@ -66,6 +98,47 @@ function Plugin() {
           Load Color Variables
         </button>
       </div>
+
+      {showCollectionSelection && (
+        <div class="section">
+          <h2>Select Collections</h2>
+          <div class="info">
+            Choose which variable collections to use for generating color swatches:
+          </div>
+          <div class="collection-list">
+            {collections.length === 0 ? (
+              <div class="empty-state">
+                No variable collections found in this file
+              </div>
+            ) : (
+              collections.map((collection) => (
+                <div 
+                  class={`collection-item ${selectedCollections.includes(collection.id) ? 'selected' : ''}`}
+                  key={collection.id}
+                  onClick={() => handleCollectionSelect(collection.id)}
+                >
+                  <input 
+                    type="checkbox" 
+                    checked={selectedCollections.includes(collection.id)}
+                    onChange={() => handleCollectionSelect(collection.id)}
+                  />
+                  <div class="collection-info">
+                    <div class="collection-name">{collection.name}</div>
+                    <div class="collection-count">{collection.colorCount} colors</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <button
+            class="button button-primary"
+            onClick={handleLoadVariables}
+            disabled={selectedCollections.length === 0}
+          >
+            Load Selected Collections
+          </button>
+        </div>
+      )}
 
       {showResults && (
         <div id="results-section" class="section">

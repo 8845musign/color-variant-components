@@ -128,3 +128,51 @@ h2 {
 .status.show {
   opacity: 1;
 }
+
+.collection-list {
+  margin: 16px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.collection-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.collection-item:hover {
+  background-color: #f5f5f5;
+}
+
+.collection-item.selected {
+  background-color: #e3f2fd;
+}
+
+.collection-item:last-child {
+  border-bottom: none;
+}
+
+.collection-item input[type="checkbox"] {
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.collection-info {
+  flex: 1;
+}
+
+.collection-name {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.collection-count {
+  color: #666;
+  font-size: 12px;
+}
