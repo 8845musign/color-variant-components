@@ -193,29 +193,45 @@ async function createColorVariantComponents(colorVariables: Array<{id: string, n
     const component = figma.createComponent();
     component.resize(64, 64);
     
-    // Check if RGB values need normalization (0-255 to 0-1)
-    let r = variable.color.r;
-    let g = variable.color.g;
-    let b = variable.color.b;
-    
-    // If any value is greater than 1, assume they're in 0-255 range
-    if (r > 1 || g > 1 || b > 1) {
-      console.log('Normalizing RGB values from 0-255 to 0-1 range');
-      r = r / 255;
-      g = g / 255;
-      b = b / 255;
-    }
-    
-    console.log(`RGB values: r=${r}, g=${g}, b=${b}`);
-    
-    // Apply the fill directly to the component
+    // First apply a regular fill with the color value
+    // Ensure we only pass r, g, b properties (no alpha)
     const fill: SolidPaint = {
       type: 'SOLID',
-      color: { r, g, b },
+      color: {
+        r: variable.color.r,
+        g: variable.color.g,
+        b: variable.color.b
+      },
       opacity: 1
     };
-    
     component.fills = [fill];
+    
+    try {
+      // Get the actual variable object
+      const actualVariable = await figma.variables.getVariableByIdAsync(variable.id);
+      
+      if (actualVariable) {
+        // Create a copy of fills
+        const fillsCopy = [...component.fills];
+        
+        if (fillsCopy[0] && fillsCopy[0].type === 'SOLID') {
+          // Use the official API method to bind the variable
+          fillsCopy[0] = figma.variables.setBoundVariableForPaint(
+            fillsCopy[0],
+            'color',
+            actualVariable
+          );
+          
+          // Apply back to component
+          component.fills = fillsCopy;
+          console.log(`Applied variable ${variable.name} to component`);
+        }
+      } else {
+        console.log(`Variable ${variable.id} not found, keeping RGB fill`);
+      }
+    } catch (error) {
+      console.log(`Failed to bind variable, keeping RGB fill:`, error);
+    }
     component.name = `color/${variable.name}`;
     
     // Position components in a grid
