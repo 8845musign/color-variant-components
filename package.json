@@ -15,7 +15,10 @@
   "scripts": {
     "build": "build-figma-plugin --typecheck --minify",
     "watch": "build-figma-plugin --typecheck --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "author": "",
   "license": "MIT",
@@ -24,13 +27,18 @@
     "@create-figma-plugin/tsconfig": "^4.0.1",
     "@create-figma-plugin/utilities": "^4.0.1",
     "@figma/plugin-typings": "^1.96.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/preact": "^3.2.4",
     "@types/node": "^20.11.0",
+    "@vitest/ui": "^3.2.4",
     "css-loader": "^6.10.0",
+    "happy-dom": "^18.0.1",
     "html-webpack-plugin": "^5.6.0",
     "preact": "^10.26.9",
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
+    "vitest": "^3.2.4",
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4"
   }

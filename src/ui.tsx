@@ -1,170 +1,121 @@
-import { h } from "preact";
-import { render } from "preact";
-import { useEffect, useState } from "preact/hooks";
-import { emit, on } from "@create-figma-plugin/utilities";
+import { h } from "preact"
+import { render } from "preact"
+import { useEffect, useState } from "preact/hooks"
+import { emit, on } from "@create-figma-plugin/utilities"
+import { ColorVariable, VariableCollection } from "./types"
+import { CollectionSelector } from "./components/CollectionSelector"
+import { ColorList } from "./components/ColorList"
+import { StatusIndicator } from "./components/StatusIndicator"
 
-import "!./ui.css";
-
-interface ColorVariable {
-  id: string;
-  name: string;
-  color: any;
-  hex: string;
-}
-
-interface VariableCollection {
-  id: string;
-  name: string;
-  colorCount: number;
-}
+import "!./ui.css"
 
 function Plugin() {
-  const [collections, setCollections] = useState<VariableCollection[]>([]);
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
-  const [showCollectionSelection, setShowCollectionSelection] = useState(false);
-  const [colorVariables, setColorVariables] = useState<ColorVariable[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [showStatus, setShowStatus] = useState(true);
+  const [collections, setCollections] = useState<VariableCollection[]>([])
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([])
+  const [showCollectionSelection, setShowCollectionSelection] = useState(false)
+  const [colorVariables, setColorVariables] = useState<ColorVariable[]>([])
+  const [showResults, setShowResults] = useState(false)
+  const [showStatus, setShowStatus] = useState(true)
 
   useEffect(() => {
     // Show UI loaded indicator briefly
-    setTimeout(() => {
-      setShowStatus(false);
-    }, 2000);
+    const timer = setTimeout(() => {
+      setShowStatus(false)
+    }, 2000)
 
     // Listen for collections from main
-    on("variable-collections", (data: VariableCollection[]) => {
-      setCollections(data);
-      setShowCollectionSelection(true);
-    });
+    const unsubscribeCollections = on(
+      "variable-collections", 
+      (data: VariableCollection[]) => {
+        setCollections(data)
+        setShowCollectionSelection(true)
+      }
+    )
 
     // Listen for color variables from main
-    on("color-variables", (data: ColorVariable[]) => {
-      setColorVariables(data);
-      setShowResults(true);
-      setShowCollectionSelection(false);
-    });
-  }, []);
+    const unsubscribeVariables = on(
+      "color-variables", 
+      (data: ColorVariable[]) => {
+        setColorVariables(data)
+        setShowResults(true)
+        setShowCollectionSelection(false)
+      }
+    )
+
+    return () => {
+      clearTimeout(timer)
+      unsubscribeCollections()
+      unsubscribeVariables()
+    }
+  }, [])
 
   const handleScanClick = () => {
-    console.log("Load button clicked");
-    emit("get-collections");
-  };
+    emit("get-collections")
+  }
 
-  const handleCollectionSelect = (collectionId: string) => {
-    if (selectedCollections.includes(collectionId)) {
-      setSelectedCollections(selectedCollections.filter(id => id !== collectionId));
-    } else {
-      setSelectedCollections([...selectedCollections, collectionId]);
-    }
-  };
+  const handleCollectionToggle = (collectionId: string) => {
+    setSelectedCollections(prev => 
+      prev.includes(collectionId)
+        ? prev.filter(id => id !== collectionId)
+        : [...prev, collectionId]
+    )
+  }
 
   const handleLoadVariables = () => {
     if (selectedCollections.length > 0) {
-      emit("get-color-variables", selectedCollections);
+      emit("get-color-variables", selectedCollections)
     }
-  };
+  }
 
   const handleRescanClick = () => {
-    setShowResults(false);
-    setShowCollectionSelection(false);
-    setSelectedCollections([]);
-    emit("get-collections");
-  };
+    setShowResults(false)
+    setShowCollectionSelection(false)
+    setSelectedCollections([])
+    emit("get-collections")
+  }
 
   const handleCreateClick = () => {
     if (colorVariables.length > 0) {
-      emit("create-components", colorVariables);
+      emit("create-components", colorVariables)
     }
-  };
+  }
 
   const handleCancelClick = () => {
-    emit("cancel");
-  };
+    emit("cancel")
+  }
 
   return (
     <div>
-      <div class="section">
-        <h2>Color Variant Components</h2>
-        <div class="info">
-          Create color swatch components from your local color variables. Each
-          variable will become a variant in a component set.
-        </div>
-        <button
-          id="scan-button"
-          class="button button-primary"
-          onClick={handleScanClick}
-        >
-          Load Color Variables
-        </button>
-      </div>
-
-      {showCollectionSelection && (
+      {!showCollectionSelection && !showResults && (
         <div class="section">
-          <h2>Select Collections</h2>
+          <h2>Color Variant Components</h2>
           <div class="info">
-            Choose which variable collections to use for generating color swatches:
-          </div>
-          <div class="collection-list">
-            {collections.length === 0 ? (
-              <div class="empty-state">
-                No variable collections found in this file
-              </div>
-            ) : (
-              collections.map((collection) => (
-                <div 
-                  class={`collection-item ${selectedCollections.includes(collection.id) ? 'selected' : ''}`}
-                  key={collection.id}
-                  onClick={() => handleCollectionSelect(collection.id)}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={selectedCollections.includes(collection.id)}
-                    onChange={() => handleCollectionSelect(collection.id)}
-                  />
-                  <div class="collection-info">
-                    <div class="collection-name">{collection.name}</div>
-                    <div class="collection-count">{collection.colorCount} colors</div>
-                  </div>
-                </div>
-              ))
-            )}
+            Create color swatch components from your local color variables. Each
+            variable will become a variant in a component set.
           </div>
           <button
             class="button button-primary"
-            onClick={handleLoadVariables}
-            disabled={selectedCollections.length === 0}
+            onClick={handleScanClick}
           >
-            Load Selected Collections
+            Load Color Variables
           </button>
         </div>
       )}
 
+      {showCollectionSelection && (
+        <CollectionSelector
+          collections={collections}
+          selectedCollections={selectedCollections}
+          onCollectionToggle={handleCollectionToggle}
+          onLoadVariables={handleLoadVariables}
+        />
+      )}
+
       {showResults && (
-        <div id="results-section" class="section">
+        <div class="section">
           <h2>Color Variables</h2>
-          <div id="color-list" class="color-list">
-            {colorVariables.length === 0 ? (
-              <div class="empty-state">
-                No color variables found in this file
-              </div>
-            ) : (
-              colorVariables.map((variable) => (
-                <div class="color-item" key={variable.id}>
-                  <div
-                    class="color-swatch"
-                    style={{ backgroundColor: variable.hex }}
-                  />
-                  <div class="color-info">
-                    <div class="color-name">{variable.name}</div>
-                    <div class="color-hex">{variable.hex}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <ColorList colorVariables={colorVariables} />
           <button
-            id="create-button"
             class="button button-primary"
             onClick={handleCreateClick}
             disabled={colorVariables.length === 0}
@@ -172,7 +123,6 @@ function Plugin() {
             Create Color Swatches
           </button>
           <button
-            id="rescan-button"
             class="button button-secondary"
             onClick={handleRescanClick}
           >
@@ -182,20 +132,15 @@ function Plugin() {
       )}
 
       <button
-        id="cancel-button"
         class="button button-secondary"
         onClick={handleCancelClick}
       >
         Cancel
       </button>
 
-      {showStatus && (
-        <div id="status" class="status show">
-          UI Loaded
-        </div>
-      )}
+      <StatusIndicator show={showStatus} message="UI Loaded" />
     </div>
-  );
+  )
 }
 
-render(<Plugin />, document.getElementById("create-figma-plugin")!);
+render(<Plugin />, document.getElementById("create-figma-plugin")!)
