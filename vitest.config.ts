@@ -22,6 +22,9 @@ export default defineConfig({
       ]
     }
   },
+  css: {
+    modules: false
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -29,5 +32,6 @@ export default defineConfig({
       'react': 'preact/compat',
       'react-dom': 'preact/compat'
     }
-  }
+  },
+  assetsInclude: ['**/*.css']
 })

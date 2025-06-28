@@ -5,7 +5,7 @@ export class ComponentService {
   private readonly PADDING = 20
   private readonly COLUMNS = 5
 
-  async createColorComponents(colorVariables: ColorVariable[]): Promise<void> {
+  async createColorComponents(colorVariables: ColorVariable[], prefix?: string): Promise<void> {
     if (colorVariables.length === 0) {
       figma.notify('No color variables selected')
       return
@@ -14,19 +14,19 @@ export class ComponentService {
     const components: ComponentNode[] = []
     
     for (const colorVar of colorVariables) {
-      const component = await this.createSingleColorComponent(colorVar)
+      const component = await this.createSingleColorComponent(colorVar, prefix)
       if (component) {
         components.push(component)
       }
     }
 
     if (components.length > 0) {
-      this.layoutComponents(components)
+      this.layoutComponents(components, prefix)
       figma.notify(`Created ${components.length} color variant components`)
     }
   }
 
-  private async createSingleColorComponent(colorVar: ColorVariable): Promise<ComponentNode | null> {
+  private async createSingleColorComponent(colorVar: ColorVariable, prefix?: string): Promise<ComponentNode | null> {
     try {
       const rect = figma.createRectangle()
       rect.resize(this.SWATCH_SIZE, this.SWATCH_SIZE)
@@ -61,7 +61,7 @@ export class ComponentService {
       
       // Create component
       const component = figma.createComponent()
-      component.name = colorVar.name
+      component.name = prefix ? `${prefix}${colorVar.name}` : colorVar.name
       component.resize(this.SWATCH_SIZE, this.SWATCH_SIZE)
       component.appendChild(rect)
       
@@ -72,9 +72,9 @@ export class ComponentService {
     }
   }
 
-  private layoutComponents(components: ComponentNode[]): void {
+  private layoutComponents(components: ComponentNode[], prefix?: string): void {
     const group = figma.group(components, figma.currentPage)
-    group.name = 'Color Variant Components'
+    group.name = prefix ? `${prefix}Color Variant Components` : 'Color Variant Components'
     
     // Arrange in grid
     components.forEach((component, index) => {

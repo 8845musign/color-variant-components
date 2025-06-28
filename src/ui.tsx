@@ -16,6 +16,7 @@ function Plugin() {
   const [colorVariables, setColorVariables] = useState<ColorVariable[]>([])
   const [showResults, setShowResults] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
+  const [prefix, setPrefix] = useState('')
 
   useEffect(() => {
     // Show UI loaded indicator briefly
@@ -76,7 +77,7 @@ function Plugin() {
 
   const handleCreateClick = () => {
     if (colorVariables.length > 0) {
-      emit("create-components", colorVariables)
+      emit("create-components", { colorVariables, prefix })
     }
   }
 
@@ -115,6 +116,16 @@ function Plugin() {
         <div class="section">
           <h2>Color Variables</h2>
           <ColorList colorVariables={colorVariables} />
+          <div class="input-group">
+            <label class="input-label">Component name prefix (optional)</label>
+            <input
+              type="text"
+              class="text-input"
+              placeholder="e.g., Button/, Icon/"
+              value={prefix}
+              onInput={(e) => setPrefix((e.target as HTMLInputElement).value)}
+            />
+          </div>
           <button
             class="button button-primary"
             onClick={handleCreateClick}

@@ -1,7 +1,7 @@
 import { showUI, on } from "@create-figma-plugin/utilities"
 import { VariableService } from "./services/variable-service"
 import { ComponentService } from "./services/component-service"
-import { ColorVariable } from "./types"
+import { ColorVariable, CreateComponentsPayload } from "./types"
 import { emit } from "@create-figma-plugin/utilities"
 
 export default function () {
@@ -31,9 +31,16 @@ export default function () {
     }
   })
 
-  on("create-components", async (colorVariables: ColorVariable[]) => {
+  on("create-components", async (payload: CreateComponentsPayload | ColorVariable[]) => {
     try {
-      await componentService.createColorComponents(colorVariables)
+      // Handle both old format (array) and new format (object with prefix)
+      if (Array.isArray(payload)) {
+        // Backward compatibility: just color variables array
+        await componentService.createColorComponents(payload)
+      } else {
+        // New format: object with colorVariables and optional prefix
+        await componentService.createColorComponents(payload.colorVariables, payload.prefix)
+      }
     } catch (error) {
       console.error('Error creating components:', error)
       figma.notify('Error creating components')

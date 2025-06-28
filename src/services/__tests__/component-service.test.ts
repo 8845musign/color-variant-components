@@ -152,5 +152,49 @@ describe('ComponentService', () => {
       expect(field).toBe('color')
       expect(variable).toEqual(mockVariable)
     })
+
+    it('should apply prefix to component names when provided', async () => {
+      const colorVariables: ColorVariable[] = [
+        { id: 'var1', name: 'Primary', color: { r: 1, g: 0, b: 0 }, hex: '#ff0000' },
+        { id: 'var2', name: 'Secondary', color: { r: 0, g: 1, b: 0 }, hex: '#00ff00' }
+      ]
+
+      const mockVariable = { id: 'var1', name: 'Primary' }
+      vi.mocked(figma.variables.getVariableByIdAsync).mockResolvedValue(mockVariable as any)
+      ;(figma.variables as any).setBoundVariableForPaint = vi.fn((paint) => paint)
+
+      await service.createColorComponents(colorVariables, 'Button/')
+
+      expect(mockComponent.name).toBe('Button/Secondary') // Last component created
+      expect(mockRectangle.name).toBe('Secondary') // Rectangle keeps original name
+      expect(figma.notify).toHaveBeenCalledWith('Created 2 color variant components')
+    })
+
+    it('should handle empty prefix as no prefix', async () => {
+      const colorVariables: ColorVariable[] = [
+        { id: 'var1', name: 'Primary', color: { r: 1, g: 0, b: 0 }, hex: '#ff0000' }
+      ]
+
+      const mockVariable = { id: 'var1', name: 'Primary' }
+      vi.mocked(figma.variables.getVariableByIdAsync).mockResolvedValue(mockVariable as any)
+      ;(figma.variables as any).setBoundVariableForPaint = vi.fn((paint) => paint)
+
+      await service.createColorComponents(colorVariables, '')
+
+      expect(mockComponent.name).toBe('Primary')
+      expect(mockRectangle.name).toBe('Primary')
+    })
+
+    it('should apply prefix to group name when provided', async () => {
+      const colorVariables: ColorVariable[] = [
+        { id: 'var1', name: 'Primary', color: { r: 1, g: 0, b: 0 }, hex: '#ff0000' }
+      ]
+
+      vi.mocked(figma.variables.getVariableByIdAsync).mockResolvedValue(null)
+
+      await service.createColorComponents(colorVariables, 'Design System/')
+
+      expect(mockGroup.name).toBe('Design System/Color Variant Components')
+    })
   })
 })

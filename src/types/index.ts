@@ -21,10 +21,15 @@ export interface VariableCollection {
   colorCount: number
 }
 
+export interface CreateComponentsPayload {
+  colorVariables: ColorVariable[]
+  prefix?: string
+}
+
 export interface MessageHandlers {
   'get-collections': () => void
   'get-color-variables': (selectedCollectionIds: string[]) => void
-  'create-components': (colorVariables: ColorVariable[]) => void
+  'create-components': (payload: CreateComponentsPayload | ColorVariable[]) => void
 }
 
 export interface UIMessages {

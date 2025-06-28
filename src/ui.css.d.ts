@@ -15,10 +15,13 @@ declare const styles: {
   readonly "color-swatch": string;
   readonly "empty-state": string;
   readonly "info": string;
+  readonly "input-group": string;
+  readonly "input-label": string;
   readonly "section": string;
   readonly "selected": string;
   readonly "show": string;
   readonly "status": string;
+  readonly "text-input": string;
 };
 export = styles;
 
