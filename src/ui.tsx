@@ -68,7 +68,7 @@ function Plugin() {
     }
   }
 
-  const handleRescanClick = () => {
+  const handleBackToCollections = () => {
     setShowResults(false)
     setShowCollectionSelection(false)
     setSelectedCollections([])
@@ -135,9 +135,9 @@ function Plugin() {
           </button>
           <button
             class="button button-secondary"
-            onClick={handleRescanClick}
+            onClick={handleBackToCollections}
           >
-            Refresh Variables
+            Back to Collections
           </button>
         </div>
       )}
